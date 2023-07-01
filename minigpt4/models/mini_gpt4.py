@@ -10,6 +10,12 @@ from minigpt4.models.blip2 import Blip2Base, disabled_train
 from minigpt4.models.modeling_llama import LlamaForCausalLM
 from transformers import LlamaTokenizer
 
+from functools import partial
+import pickle
+
+pickle.load = partial(pickle.load, encoding="latin1")
+pickle.Unpickler = partial(pickle.Unpickler, encoding="latin1")
+
 
 @registry.register_model("mini_gpt4")
 class MiniGPT4(Blip2Base):
@@ -262,7 +268,7 @@ class MiniGPT4(Blip2Base):
         ckpt_path = cfg.get("ckpt", "")  # load weights of MiniGPT-4
         if ckpt_path:
             print("Load BLIP2-LLM Checkpoint: {}".format(ckpt_path))
-            ckpt = torch.load(ckpt_path, map_location="cpu")
+            ckpt = torch.load(ckpt_path, map_location="cpu", pickle_module=pickle)
             msg = model.load_state_dict(ckpt['model'], strict=False)
 
         return model
